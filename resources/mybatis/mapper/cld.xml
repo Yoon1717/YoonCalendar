@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.calendar.yoony.cld.dao.ICldDAO">
+
+
+<!-- 아이콘 클릭시 생성되는 cld 기록 -->
+<insert id="writeCLD" parameterType="CldVO">
+
+	INSERT INTO calendar (
+							  cld_no
+							, mem_id
+							, icon_no
+							, cld_day
+							, cld_hour
+							, cld_time
+						 )
+	VALUES  			(
+							 #{cldNo}
+							,#{memId}
+							,#{iconNo}
+							,TO_CHAR(SYSDATE, 'YYYYMMDD')
+							,TO_CHAR(SYSDATE, 'HH24')
+							,TO_DATE(TO_CHAR(sysdate, 'yyyymmdd HH24'), 'YYYYMMDD HH24:MI:SS')
+						)				     
+</insert>
+
+
+<!-- 홈화면 로그인시 달력을 조회해오는 쿼리 -->
+<select id="getHomeCLD" parameterType="CldVO" resultType="IconViewVO">
+
+	SELECT
+		   a.cld_no     
+	     , a.mem_id
+	     , a.cld_day
+	     , a.cld_hour
+	     , a.cld_time
+	     , a.cld_del_yn
+	     , b.icon_no
+	     , b.icon_img
+	     , b.icon_comment
+	FROM 	calendar a, user_icon b
+	WHERE 	a.icon_no = b.icon_no
+	AND     a.mem_id = #{memId}
+	AND     a.cld_del_yn = 'N'
+	AND     a.cld_day = TO_CHAR(SYSDATE, 'YYYYMMDD')
+</select>
+
+
+<!-- 삭제 -->
+<update id="delCLD" parameterType="String">
+	UPDATE calendar
+	SET cld_del_yn = 'Y'
+	WHERE cld_no = #{cldNo}
+</update>
+
+<!-- 아이콘마다의 cld 기록 횟수 -->
+<select id="countCldPerIcon" parameterType="MemberVO" resultType="java.util.Map" >
+
+	SELECT 
+		   a.icon_no
+	     , a.icon_img
+	     , a.icon_comment
+	     , COUNT(b.cld_no) as countCldPerIcon
+	FROM user_icon a, calendar b
+	WHERE a.icon_no = b.icon_no
+	AND a.mem_id = #{memId}
+	AND a.del_yn = 'N'
+	AND b.cld_del_yn = 'N'
+	<!-- AND TO_DATE(SUBSTR(b.cld_no,0,8)) = '20230926' -->
+	GROUP BY( a.icon_no
+	     , a.icon_img
+	     , a.icon_comment)
+	ORDER BY countCldPerIcon DESC
+
+</select>
+
+
+</mapper>

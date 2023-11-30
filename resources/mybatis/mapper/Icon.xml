@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.calendar.yoony.icons.dao.IIconDAO">
+<!--
+	1. 아이콘 추가하는 INSERT 문		|| 자신 아이디에 추가 
+	2. 기존의 아이콘 불러오는 SELECT문 || 아이디가 동일한 데이터만
+	3. 아이콘 삭제하는 UPDATE 문 (del_yn업데이트)
+ -->
+
+
+<!-- 홈화면 로그인시 아이콘을 조회해오는 쿼리 -->
+<select id="getHomeIcon" parameterType="IconVO" resultType="IconVO">
+	SELECT icon_no
+	     , mem_id
+	     , icon_img
+	     , icon_comment
+	     , del_yn
+	FROM user_icon
+	WHERE mem_id = #{memId}
+	AND   del_yn = 'N'
+	ORDER BY icon_no DESC
+</select>
+
+<insert id="writeIcon" parameterType="IconVO">
+	INSERT INTO user_icon (
+						 icon_no   
+					    ,mem_id    
+					    ,icon_img  
+					    ,icon_comment
+					)
+	VALUES (
+					  #{iconNo}
+				     ,#{memId}
+				     ,#{iconImg}
+				     ,#{iconComment}
+				     )
+</insert>
+
+
+<select id="getIcon" parameterType="String" resultType="com.calendar.yoony.icons.vo.IconVO">
+	SELECT a.icon_no
+	     , a.mem_id
+	     , a.icon_img
+	     , a.icon_comment
+	FROM user_icon a, member b
+	WHERE a.mem_id = b.mem_id
+	AND a.icon_no = #{iconNo}
+
+</select>
+
+<!-- 페이지 입장시 댓글 전체 조회 쿼리 -->
+<select id="getIconList" parameterType="int" resultType="com.calendar.yoony.icons.vo.IconVO">
+	SELECT a.icon_no
+	     , a.mem_id
+	     , a.icon_img
+	     , a.icon_comment
+	FROM    user_icon a, member b
+	WHERE   a.mem_id = b.mem_id
+	AND     a.icon_no = #{iconNo}
+	AND     a.del_yn = 'N'
+	ORDER BY icon_no DESC
+</select>
+
+<!-- 댓글 삭제 -->
+<update id="delIcon" parameterType="String">
+
+	UPDATE user_icon
+	SET del_yn = 'Y'
+	WHERE icon_no = #{iconNo}
+	
+</update>
+
+
+</mapper>

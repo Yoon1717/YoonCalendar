@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.calendar.yoony.member.dao.IMemberDAO">
+
+<insert id="registMember" parameterType="com.calendar.yoony.member.vo.MemberVO">
+<!-- IMemberDAO와 동일해야 /  -->
+	INSERT INTO member(
+						mem_id
+					   ,mem_pw
+					   ,mem_nm
+					   )
+					   VALUES(
+					    #{memId}
+					   ,#{memPw}
+					   ,#{memNm}
+					   )
+					   
+</insert>
+
+<!-- config에 써둬서 MemberVo 바로 사용가능? -->
+<select id="loginMember" parameterType="MemberVO" resultType="MemberVO">
+	SELECT mem_id
+		  ,mem_pw
+		  ,mem_nm
+		  ,profile_img
+	FROM member
+	WHERE 	mem_id =#{memId}
+	<!-- 암호화 되어있는 비밀번호 encode를 통해 매번달라지기때문에 무조건 똑같이 할수 없다.  -->
+<!-- 	AND		mem_pw =#{memPw} -->
+</select>
+<!-- 이미지 경로만 남길뿐 기록은 뭐요..? -->
+<update id="profileUpLoad" parameterType="MemberVO">
+	UPDATE member
+	SET 	profile_img = #{profileImg}
+	WHERE 	mem_id = #{memId}
+</update>
+
+</mapper>
